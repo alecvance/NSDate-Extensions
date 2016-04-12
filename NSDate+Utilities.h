@@ -1,7 +1,8 @@
 /*
- Erica Sadun, http://ericasadun.com
+ By Erica Sadun, http://ericasadun.com
  iPhone Developer's Cookbook 3.x and beyond
  BSD License, Use at your own risk
+ 
  */
 
 #import <Foundation/Foundation.h>
@@ -15,7 +16,7 @@
 @interface NSDate (Utilities)
 + (NSCalendar *) currentCalendar; // avoid bottlenecks
 
-// Relative dates from the current date
+// Relative dates from the current system date (now)
 + (NSDate *) dateTomorrow;
 + (NSDate *) dateYesterday;
 + (NSDate *) dateWithDaysFromNow: (NSInteger) days;
@@ -24,6 +25,16 @@
 + (NSDate *) dateWithHoursBeforeNow: (NSInteger) dHours;
 + (NSDate *) dateWithMinutesFromNow: (NSInteger) dMinutes;
 + (NSDate *) dateWithMinutesBeforeNow: (NSInteger) dMinutes;
+
+// Implies Gregorian calendar
++(NSDate *)dateForGregorianYear:(int)year Month:(int)month Day:(int)day;
+
+// # of weekdays
++(int)numberOfDaysInWeek;
+
+// String names for weekdays
++(NSString *)nameForWeekdayNumbered:(int)n;
++(NSString *)shortNameForWeekdayNumbered:(int)n;
 
 // Short string utilities
 - (NSString *) stringWithDateStyle: (NSDateFormatterStyle) dateStyle timeStyle: (NSDateFormatterStyle) timeStyle;
@@ -40,6 +51,10 @@
 
 // Comparing dates
 - (BOOL) isEqualToDateIgnoringTime: (NSDate *) aDate;
+
+// Returns YES if same day (time can be different)
+-(BOOL)isSameLocalDayAsDate:(NSDate *)otherDate;
+-(BOOL)isSameUTDayAsDate:(NSDate *)otherDate;
 
 - (BOOL) isToday;
 - (BOOL) isTomorrow;
@@ -63,6 +78,9 @@
 - (BOOL) isEarlierThanDate: (NSDate *) aDate;
 - (BOOL) isLaterThanDate: (NSDate *) aDate;
 
+-(BOOL)isEarlierOrEqualToDate:(NSDate *)otherDate;
+-(BOOL)isLaterOrEqualToDate:(NSDate *)otherDate;
+
 - (BOOL) isInFuture;
 - (BOOL) isInPast;
 
@@ -82,6 +100,14 @@
 - (NSDate *) dateByAddingMinutes: (NSInteger) dMinutes;
 - (NSDate *) dateBySubtractingMinutes: (NSInteger) dMinutes;
 
+- (NSDate *) nextDay;
+- (NSDate *) previousDay;
+
+- (NSDate *) dateAtUTC: (NSTimeInterval)ut;
+
+- (NSDate *) averagedWith: (NSDate *)otherDate;
+
+
 // Date extremes
 - (NSDate *) dateAtStartOfDay;
 - (NSDate *) dateAtEndOfDay;
@@ -94,6 +120,10 @@
 - (NSInteger) daysAfterDate: (NSDate *) aDate;
 - (NSInteger) daysBeforeDate: (NSDate *) aDate;
 - (NSInteger)distanceInDaysToDate:(NSDate *)anotherDate;
+
+-(float)localTimeInSeconds;
+-(float)localTimeInHours;
+
 
 // Decomposing dates
 @property (readonly) NSInteger nearestHour;

@@ -81,6 +81,66 @@ static const unsigned componentFlags = (NSYearCalendarUnit| NSMonthCalendarUnit 
 	return newDate;		
 }
 
+// Implies Gregorian calendar; uses default time zone
++(NSDate *)dateForGregorianYear:(int)year Month:(int)month Day:(int)day{
+    
+    NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    // [gregorian setTimeZone: [NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+    
+    NSDateComponents *comps = [[NSDateComponents alloc] init];
+    [comps setYear:year];
+    [comps setMonth:month];
+    [comps setDay:day];
+    
+    NSDate *date = [gregorian dateFromComponents:comps];
+    
+    return date;
+}
+
+
++(int)numberOfDaysInWeek{
+    return 7; // localize? are there calendars with a different number of weekdays?
+}
+
++(NSString *)nameForWeekdayNumbered:(int)n{
+    // 1 = Sunday, 2= Monday, etc....
+
+    NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    [gregorian setLocale:[NSLocale currentLocale]];
+    
+    NSDateComponents *components = [gregorian components:NSWeekdayCalendarUnit | NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit fromDate:[NSDate date]];
+    
+    [components setDay:([components day]-([components weekday])+n)];
+    
+    NSDate *thisDayOfWeek = [gregorian dateFromComponents:components];
+    NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+    //    [dateFormat_first setDateFormat:@"MM/dd/yyyy :EEEE"];
+    [dateFormat setDateFormat:@"EEEE"];
+    NSString *dateString = [dateFormat stringFromDate:thisDayOfWeek];
+    
+    
+    return dateString;
+}
+
+// starts at 1
++(NSString *)shortNameForWeekdayNumbered:(int)n{
+    NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    [gregorian setLocale:[NSLocale currentLocale]];
+    
+    NSDateComponents *components = [gregorian components:NSWeekdayCalendarUnit | NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit fromDate:[NSDate date]];
+    
+    [components setDay:([components day]-([components weekday])+n)];
+    
+    NSDate *thisDayOfWeek = [gregorian dateFromComponents:components];
+    NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+    //    [dateFormat_first setDateFormat:@"MM/dd/yyyy :EEEE"];
+    [dateFormat setDateFormat:@"EE"];
+    NSString *dateString = [dateFormat stringFromDate:thisDayOfWeek];
+    
+    
+    return dateString;
+}
+
 #pragma mark - String Properties
 - (NSString *) stringWithFormat: (NSString *) format
 {
@@ -144,6 +204,7 @@ static const unsigned componentFlags = (NSYearCalendarUnit| NSMonthCalendarUnit 
     return [self stringWithDateStyle:NSDateFormatterLongStyle  timeStyle:NSDateFormatterNoStyle];
 }
 
+
 #pragma mark - Comparing Dates
 
 - (BOOL) isEqualToDateIgnoringTime: (NSDate *) aDate
@@ -154,6 +215,28 @@ static const unsigned componentFlags = (NSYearCalendarUnit| NSMonthCalendarUnit 
 			(components1.month == components2.month) && 
 			(components1.day == components2.day));
 }
+
+-(BOOL)isSameLocalDayAsDate:(NSDate *)otherDate{
+    NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    
+    // now build a NSDate object for the next day
+    NSDateComponents *c1 = [gregorian components:(NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit) fromDate:self];
+    NSDateComponents *c2 = [gregorian components:(NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit) fromDate:otherDate];
+    
+    
+    return ((c1.year == c2.year) && (c1.month == c2.month) && (c1.day == c2.day));
+    
+}
+
+// Returns YES if same day (time can be different) -- only true for UT/GMT
+-(BOOL)isSameUTDayAsDate:(NSDate *)otherDate{
+    int days1 = [self timeIntervalSince1970] / 86400;
+    int days2 = [otherDate timeIntervalSince1970] / 86400;
+    
+    return (days1==days2);
+}
+
+
 
 - (BOOL) isToday
 {
@@ -266,6 +349,24 @@ static const unsigned componentFlags = (NSYearCalendarUnit| NSMonthCalendarUnit 
 	return ([self compare:aDate] == NSOrderedDescending);
 }
 
+
+// comparisons for two points in time
+-(BOOL)isEarlierOrEqualToDate:(NSDate *)otherDate{
+    NSTimeInterval secs1 = [self timeIntervalSince1970];
+    NSTimeInterval secs2 = [otherDate timeIntervalSince1970];
+    return (secs1<=secs2);
+    
+}
+
+-(BOOL)isLaterOrEqualToDate:(NSDate *)otherDate{
+    NSTimeInterval secs1 = [self timeIntervalSince1970];
+    NSTimeInterval secs2 = [otherDate timeIntervalSince1970];
+    return (secs1>=secs2);
+    
+}
+
+
+
 // Thanks, markrickert
 - (BOOL) isInFuture
 {
@@ -361,10 +462,94 @@ static const unsigned componentFlags = (NSYearCalendarUnit| NSMonthCalendarUnit 
 	return [self dateByAddingMinutes: (dMinutes * -1)];
 }
 
+
+-(NSDate *)nextDay
+{
+    return [self dateByAddingDays: 1];
+}
+
+-(NSDate *)previousDay
+{
+    return [self dateByAddingDays: -1];
+}
+
+- (NSDate *) averagedWith: (NSDate *)otherDate{
+    NSTimeInterval t1 = [self timeIntervalSinceReferenceDate];
+    NSTimeInterval t2 = [otherDate timeIntervalSinceReferenceDate];
+    NSTimeInterval t3 = (t1 + t2)/2.0;
+    return [NSDate dateWithTimeIntervalSinceReferenceDate:t3];
+}
+
+
+/*
+ 
+ dateAtUTC
+ 
+ Return a new date at the timecode ut
+ where ut is the number of seconds since this day
+ began.
+ 
+ NEEDS TESTING
+ 
+ The problem with this is that if it's Monday evening in San Francisco, it's Tuesday morning in London, so if you set a time that's equivalent in seconds to 4pm (16h:00) GMT on a 
+     Date object that has a different day
+ 
+ */
+
+#warning NEEDS TESTING -- see above
+
+-(NSDate *)dateAtUTC: (NSTimeInterval)ut{
+    //NSDate* sourceDate = [NSDate date];
+    
+    NSTimeZone* sourceTimeZone = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
+    
+    int h = floor(ut);
+    int m = floor((ut-h)*60);
+    int s = floor((ut-h)*3600 - (m*60));
+    
+    //DBLog(@"UT = %f which is %i:%i:%i", ut, h, m, s);
+    
+    NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    [gregorian setTimeZone: sourceTimeZone];
+    
+    NSDateComponents *comps = [gregorian components:NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:self];
+    
+    [comps setHour:h];
+    [comps setMinute:m];
+    [comps setSecond:s];
+    
+    NSDate *date = [gregorian dateFromComponents:comps];
+    
+    
+    return date;
+    
+    /*
+     //
+     //	// The date in your source timezone (eg. EST)
+     //	NSDate* sourceDate = [NSDate dateFromComponents: timeComponents];
+     //	DBLog(@"Source Date is %@", sourceDate);
+     
+     NSTimeZone* destinationTimeZone = [NSTimeZone localTimeZone];
+     
+     NSInteger sourceGMTOffset = [sourceTimeZone secondsFromGMTForDate:sourceDate];
+     NSInteger destinationGMTOffset = [destinationTimeZone secondsFromGMTForDate:sourceDate];
+     NSTimeInterval interval = destinationGMTOffset - sourceGMTOffset;
+     
+     NSDate* destinationDate = [[NSDate alloc] initWithTimeInterval:interval sinceDate:sourceDate];
+     
+     
+     
+     return destinationDate;
+     */
+    
+}
+
+
+
 - (NSDateComponents *) componentsWithOffsetFromDate: (NSDate *) aDate
 {
-	NSDateComponents *dTime = [[NSDate currentCalendar] components:componentFlags fromDate:aDate toDate:self options:0];
-	return dTime;
+    NSDateComponents *dTime = [[NSDate currentCalendar] components:componentFlags fromDate:aDate toDate:self options:0];
+    return dTime;
 }
 
 #pragma mark - Extremes
@@ -434,6 +619,18 @@ static const unsigned componentFlags = (NSYearCalendarUnit| NSMonthCalendarUnit 
     NSDateComponents *components = [gregorianCalendar components:NSDayCalendarUnit fromDate:self toDate:anotherDate options:0];
     return components.day;
 }
+
+
+-(float)localTimeInSeconds{
+    NSTimeInterval interval = [self timeIntervalSinceDate: [self dateAtStartOfDay]];
+    return interval;
+}
+
+-(float)localTimeInHours{
+    return [self localTimeInSeconds] / (3600.0);
+}
+
+
 
 #pragma mark - Decomposing Dates
 
