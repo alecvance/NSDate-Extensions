@@ -103,8 +103,6 @@
 - (NSDate *) nextDay;
 - (NSDate *) previousDay;
 
-- (NSDate *) dateAtUTC: (NSTimeInterval)ut;
-
 - (NSDate *) averagedWith: (NSDate *)otherDate;
 
 

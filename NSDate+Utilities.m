@@ -481,68 +481,6 @@ static const unsigned componentFlags = (NSYearCalendarUnit| NSMonthCalendarUnit 
 }
 
 
-/*
- 
- dateAtUTC
- 
- Return a new date at the timecode ut
- where ut is the number of seconds since this day
- began.
- 
- NEEDS TESTING
- 
- The problem with this is that if it's Monday evening in San Francisco, it's Tuesday morning in London, so if you set a time that's equivalent in seconds to 4pm (16h:00) GMT on a 
-     Date object that has a different day
- 
- */
-
-#warning NEEDS TESTING -- see above
-
--(NSDate *)dateAtUTC: (NSTimeInterval)ut{
-    //NSDate* sourceDate = [NSDate date];
-    
-    NSTimeZone* sourceTimeZone = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
-    
-    int h = floor(ut);
-    int m = floor((ut-h)*60);
-    int s = floor((ut-h)*3600 - (m*60));
-    
-    //DBLog(@"UT = %f which is %i:%i:%i", ut, h, m, s);
-    
-    NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-    [gregorian setTimeZone: sourceTimeZone];
-    
-    NSDateComponents *comps = [gregorian components:NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:self];
-    
-    [comps setHour:h];
-    [comps setMinute:m];
-    [comps setSecond:s];
-    
-    NSDate *date = [gregorian dateFromComponents:comps];
-    
-    
-    return date;
-    
-    /*
-     //
-     //	// The date in your source timezone (eg. EST)
-     //	NSDate* sourceDate = [NSDate dateFromComponents: timeComponents];
-     //	DBLog(@"Source Date is %@", sourceDate);
-     
-     NSTimeZone* destinationTimeZone = [NSTimeZone localTimeZone];
-     
-     NSInteger sourceGMTOffset = [sourceTimeZone secondsFromGMTForDate:sourceDate];
-     NSInteger destinationGMTOffset = [destinationTimeZone secondsFromGMTForDate:sourceDate];
-     NSTimeInterval interval = destinationGMTOffset - sourceGMTOffset;
-     
-     NSDate* destinationDate = [[NSDate alloc] initWithTimeInterval:interval sinceDate:sourceDate];
-     
-     
-     
-     return destinationDate;
-     */
-    
-}
 
 
 
