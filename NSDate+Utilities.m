@@ -511,6 +511,32 @@ static const unsigned componentFlags = (NSYearCalendarUnit| NSMonthCalendarUnit 
 	return [[NSDate currentCalendar] dateFromComponents:components];
 }
 
+-(NSDate *) dateAtStartOfDayGMT
+{
+    NSCalendar *calendar = [NSCalendar calendarWithIdentifier: NSCalendarIdentifierGregorian];
+    [calendar setTimeZone: [NSTimeZone timeZoneForSecondsFromGMT:0]];
+    
+    NSDateComponents *components = [calendar components:componentFlags fromDate:self];
+    components.hour = 0;
+    components.minute = 0;
+    components.second = 0;
+    return [calendar dateFromComponents:components];
+}
+
+- (NSDate *) dateAtEndOfDayGMT
+{
+    
+    NSCalendar *calendar = [NSCalendar calendarWithIdentifier: NSCalendarIdentifierGregorian];
+    [calendar setTimeZone: [NSTimeZone timeZoneForSecondsFromGMT:0]];
+    
+    NSDateComponents *components = [calendar components:componentFlags fromDate:self];
+    components.hour = 23; // Thanks Aleksey Kononov
+    components.minute = 59;
+    components.second = 59;
+    return [calendar dateFromComponents:components];
+}
+
+
 #pragma mark - Retrieving Intervals
 
 - (NSInteger) minutesAfterDate: (NSDate *) aDate
@@ -560,6 +586,8 @@ static const unsigned componentFlags = (NSYearCalendarUnit| NSMonthCalendarUnit 
 
 
 -(float)localTimeInSeconds{
+#pragma warning do we want to use dateAtStartOfDay??
+
     NSTimeInterval interval = [self timeIntervalSinceDate: [self dateAtStartOfDay]];
     return interval;
 }

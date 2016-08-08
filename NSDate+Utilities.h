@@ -110,6 +110,10 @@
 - (NSDate *) dateAtStartOfDay;
 - (NSDate *) dateAtEndOfDay;
 
+- (NSDate *) dateAtStartOfDayGMT;
+- (NSDate *) dateAtEndOfDayGMT;
+
+
 // Retrieving intervals
 - (NSInteger) minutesAfterDate: (NSDate *) aDate;
 - (NSInteger) minutesBeforeDate: (NSDate *) aDate;
