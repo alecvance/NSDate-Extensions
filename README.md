@@ -1,9 +1,5 @@
 **README**
 
-I am often swamped, so updating this repository (sadly) tends to fall off my to-do list. I'm fixing it up now in preparation for the iOS 6 Cookbook. 
+I originally wrote my own NSDate extensions, but found out later that Erica Sadun had already covered most of the bases, and generally better than I had. Nonetheless, I had a few of my own methods that I wanted to preserve so I added them to my fork of her version, which is at https://github.com/erica/NSDate-Extensions
 
-I have changed all the uints to ints, fixed the year/week bug, added a few methods by user request.
-
-Because I have the attention span of a flea, if you want to see anything fixed/added/whatever, ping me **now**, when I can spare the time to attend to it.
-
-Thank you to everyone using the repository and sending me lovely pull requests and feedback. Even if I fail to respond in any timely matter, I appreciate it enormously.
+--Alec
