@@ -579,15 +579,15 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
 }
 
 
--(float)localTimeInSeconds{
+-(double)secondsSinceStartOfDay{
 #pragma warning do we want to use dateAtStartOfDay??
 
     NSTimeInterval interval = [self timeIntervalSinceDate: [self dateAtStartOfDay]];
     return interval;
 }
 
--(float)localTimeInHours{
-    return [self localTimeInSeconds] / (3600.0);
+-(double)hoursSinceStartOfDay{
+    return [self secondsSinceStartOfDay] / (3600.0);
 }
 
 

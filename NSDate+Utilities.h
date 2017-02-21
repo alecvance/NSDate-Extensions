@@ -124,8 +124,8 @@
 - (NSInteger) daysBeforeDate: (NSDate *) aDate;
 - (NSInteger)distanceInDaysToDate:(NSDate *)anotherDate;
 
--(float)localTimeInSeconds;
--(float)localTimeInHours;
+-(double)secondsSinceStartOfDay;
+-(double)hoursSinceStartOfDay;
 
 
 // Decomposing dates
