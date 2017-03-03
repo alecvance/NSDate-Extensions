@@ -1,5 +1,5 @@
 /*
- By Erica Sadun, http://ericasadun.com
+ Originally by Erica Sadun, http://ericasadun.com
  iPhone Developer's Cookbook 3.x and beyond
  BSD License, Use at your own risk
  
@@ -16,6 +16,7 @@
 
 @interface NSDate (Utilities)
 + (NSCalendar *) currentCalendar; // avoid bottlenecks
++ (NSTimeZone *)genericTimeZoneForLongitude:(double)lon;
 
 // Relative dates from the current system date (now)
 + (NSDate *) dateTomorrow;
@@ -106,14 +107,24 @@
 
 - (NSDate *) averagedWith: (NSDate *)otherDate;
 
+//components
+- (NSDateComponents *) componentsForDate; // gets all standard components plus ordinals
+- (NSDateComponents *) componentsForDateWithTimeZone: (NSTimeZone *)timeZone;
+- (NSDateComponents *) componentsWithOffsetFromDate: (NSDate *) aDate;
+
 
 // Date extremes
-- (NSDate *) dateAtStartOfDay;
-- (NSDate *) dateAtEndOfDay;
+- (NSDate *) dateAtStartOfDay; //using current calendar (and timezone)
+- (NSDate *) dateAtEndOfDay; //using current calendar (and timezone)
+
+//Even if you're still using Gregorian calendar, you might want to change the time zone!
+- (NSDate *) dateAtStartOfDayUsingCalendar:(NSCalendar *)calendar;
+- (NSDate *) dateAtEndOfDayUsingCalendar:(NSCalendar *)calendar;
 
 - (NSDate *) dateAtStartOfDayGMT;
 - (NSDate *) dateAtEndOfDayGMT;
 
+- (NSDate *) dateForMiddayAtLongitude: (double)lon;
 
 // Retrieving intervals
 - (NSInteger) minutesAfterDate: (NSDate *) aDate;
@@ -124,8 +135,8 @@
 - (NSInteger) daysBeforeDate: (NSDate *) aDate;
 - (NSInteger)distanceInDaysToDate:(NSDate *)anotherDate;
 
--(double)secondsSinceStartOfDay;
--(double)hoursSinceStartOfDay;
+-(double)secondsSinceStartOfDayUsingCalendar:(NSCalendar *)calendar;
+-(double)hoursSinceStartOfDayUsingCalendar:(NSCalendar *)calendar;
 
 
 // Decomposing dates

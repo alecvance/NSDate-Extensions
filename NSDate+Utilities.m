@@ -1,5 +1,5 @@
 /*
- Erica Sadun, http://ericasadun.com
+ Originally by Erica Sadun, http://ericasadun.com
  iPhone Developer's Cookbook 3.x and beyond
  BSD License, Use at your own risk
 
@@ -22,6 +22,18 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
         sharedCalendar = [NSCalendar autoupdatingCurrentCalendar];
     return sharedCalendar;
 }
+
++ (NSTimeZone *)genericTimeZoneForLongitude:(double)lon{
+    
+    // alternatively, makes a time zone for each minute!
+    // return [NSTimeZone timeZoneForSecondsFromGMT:lon * 240.0];
+    
+    // round to nearest hour offset from GMT
+    int hour = (int)((24.0/360.0)*lon);
+    
+    return [NSTimeZone timeZoneForSecondsFromGMT:hour * HOUR];
+}
+
 
 #pragma mark - Relative Dates
 
@@ -211,11 +223,11 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
 }
 
 -(BOOL)isSameLocalDayAsDate:(NSDate *)otherDate{
-    NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+    // by using the current calendar, we should be using the local time zone.
     
     // now build a NSDate object for the next day
-    NSDateComponents *c1 = [gregorian components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:self];
-    NSDateComponents *c2 = [gregorian components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:otherDate];
+    NSDateComponents *c1 = [[NSDate currentCalendar] components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:self];
+    NSDateComponents *c2 = [[NSDate currentCalendar] components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:otherDate];
     
     
     return ((c1.year == c2.year) && (c1.month == c2.month) && (c1.day == c2.day));
@@ -475,8 +487,25 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
 }
 
 
+- (NSDateComponents *) componentsForDate;
+{
+
+    NSDateComponents *components = [[NSDate currentCalendar] components:componentFlags fromDate:self];
+    
+    return components;
+}
 
 
+- (NSDateComponents *) componentsForDateWithTimeZone: (NSTimeZone *)timeZone
+{
+    NSCalendar *calendar =  [NSDate currentCalendar];
+    [calendar setTimeZone: timeZone];
+    
+    NSDateComponents *components = [calendar components:componentFlags fromDate:self];
+    
+    return components;
+    
+}
 
 - (NSDateComponents *) componentsWithOffsetFromDate: (NSDate *) aDate
 {
@@ -484,9 +513,11 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
     return dTime;
 }
 
+
+
 #pragma mark - Extremes
 
-- (NSDate *) dateAtStartOfDay
+- (NSDate *) dateAtStartOfDay //using current calendar (and timezone)
 {
 	NSDateComponents *components = [[NSDate currentCalendar] components:componentFlags fromDate:self];
 	components.hour = 0;
@@ -496,7 +527,7 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
 }
 
 // Thanks gsempe & mteece
-- (NSDate *) dateAtEndOfDay
+- (NSDate *) dateAtEndOfDay //using current calendar (and timezone)
 {
 	NSDateComponents *components = [[NSDate currentCalendar] components:componentFlags fromDate:self];
 	components.hour = 23; // Thanks Aleksey Kononov
@@ -505,7 +536,26 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
 	return [[NSDate currentCalendar] dateFromComponents:components];
 }
 
--(NSDate *) dateAtStartOfDayGMT
+//Even if you're still using Gregorian calendar, you might want to change the time zone!
+- (NSDate *) dateAtStartOfDayUsingCalendar:(NSCalendar *)calendar
+{
+    NSDateComponents *components = [calendar components:componentFlags fromDate:self];
+    components.hour = 0;
+    components.minute = 0;
+    components.second = 0;
+    return [calendar dateFromComponents:components];
+}
+
+- (NSDate *) dateAtEndOfDayUsingCalendar:(NSCalendar *)calendar
+{
+    NSDateComponents *components = [calendar components:componentFlags fromDate:self];
+    components.hour = 23; 
+    components.minute = 59;
+    components.second = 59;
+    return [calendar dateFromComponents:components];
+}
+
+- (NSDate *) dateAtStartOfDayGMT
 {
     NSCalendar *calendar = [NSCalendar calendarWithIdentifier: NSCalendarIdentifierGregorian];
     [calendar setTimeZone: [NSTimeZone timeZoneForSecondsFromGMT:0]];
@@ -529,6 +579,24 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
     components.second = 59;
     return [calendar dateFromComponents:components];
 }
+
+- (NSDate *) dateForMiddayAtLongitude: (double)lon
+{
+    // get a calendar with a valid local time zone from the longitude
+    NSTimeZone *tz = [NSDate genericTimeZoneForLongitude:lon];
+    
+    // get the date components from this date in the local timezone
+    NSDateComponents *components = [self componentsForDateWithTimeZone:tz];
+    
+    // change the date components to be noon
+    components.hour = 12;
+    components.minute = 0;
+    components.second = 0;
+    return [[NSDate currentCalendar] dateFromComponents:components];
+
+
+}
+
 
 
 #pragma mark - Retrieving Intervals
@@ -579,15 +647,16 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
 }
 
 
--(double)secondsSinceStartOfDay{
-#pragma warning do we want to use dateAtStartOfDay??
+-(double)secondsSinceStartOfDayUsingCalendar:(NSCalendar *)calendar{
+#pragma warning wasn't working before!
+    // do we want to use dateAtStartOfDay?? this is unreliable for dates containing DST transitions.
 
-    NSTimeInterval interval = [self timeIntervalSinceDate: [self dateAtStartOfDay]];
+    NSTimeInterval interval = [self timeIntervalSinceDate: [self dateAtStartOfDayUsingCalendar:calendar]];
     return interval;
 }
 
--(double)hoursSinceStartOfDay{
-    return [self secondsSinceStartOfDay] / (3600.0);
+-(double)hoursSinceStartOfDayUsingCalendar:(NSCalendar *)calendar{
+    return [self secondsSinceStartOfDayUsingCalendar:calendar] / (3600.0);
 }
 
 
