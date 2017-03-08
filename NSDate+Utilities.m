@@ -517,17 +517,19 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
 
 #pragma mark - Extremes
 
-- (NSDate *) dateAtStartOfDay //using current calendar (and timezone)
+- (NSDate *) dateAtStartOfDay //using current calendar (and timezone) can cause issues with dates in different time zone state than system's
+
 {
 	NSDateComponents *components = [[NSDate currentCalendar] components:componentFlags fromDate:self];
 	components.hour = 0;
 	components.minute = 0;
 	components.second = 0;
+    
 	return [[NSDate currentCalendar] dateFromComponents:components];
 }
 
 // Thanks gsempe & mteece
-- (NSDate *) dateAtEndOfDay //using current calendar (and timezone)
+- (NSDate *) dateAtEndOfDay //using current calendar (and timezone) can cause issues with dates in different time zone state than system's
 {
 	NSDateComponents *components = [[NSDate currentCalendar] components:componentFlags fromDate:self];
 	components.hour = 23; // Thanks Aleksey Kononov

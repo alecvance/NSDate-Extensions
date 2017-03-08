@@ -114,8 +114,8 @@
 
 
 // Date extremes
-- (NSDate *) dateAtStartOfDay; //using current calendar (and timezone)
-- (NSDate *) dateAtEndOfDay; //using current calendar (and timezone)
+- (NSDate *) dateAtStartOfDay; //using current calendar (and timezone) -- can cause issues with dates in different time zone state than today
+- (NSDate *) dateAtEndOfDay; //using current calendar (and timezone) -- can cause issues with dates in different time zone state than today
 
 //Even if you're still using Gregorian calendar, you might want to change the time zone!
 - (NSDate *) dateAtStartOfDayUsingCalendar:(NSCalendar *)calendar;
