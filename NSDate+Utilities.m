@@ -225,9 +225,14 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
 -(BOOL)isSameLocalDayAsDate:(NSDate *)otherDate{
     // by using the current calendar, we should be using the local time zone.
     
-    // now build a NSDate object for the next day
-    NSDateComponents *c1 = [[NSDate currentCalendar] components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:self];
-    NSDateComponents *c2 = [[NSDate currentCalendar] components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:otherDate];
+    return [self isSameDayAsDate:otherDate usingCalendar:[NSDate currentCalendar]];
+}
+
+-(BOOL)isSameDayAsDate:(NSDate *)otherDate usingCalendar:(NSCalendar *)calendar{
+    //calendar should already have time zone set!!
+    
+    NSDateComponents *c1 = [calendar components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:self];
+    NSDateComponents *c2 = [calendar components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:otherDate];
     
     
     return ((c1.year == c2.year) && (c1.month == c2.month) && (c1.day == c2.day));
