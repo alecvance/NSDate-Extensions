@@ -56,6 +56,8 @@
 
 // Returns YES if same day (time can be different)
 -(BOOL)isSameLocalDayAsDate:(NSDate *)otherDate;
+-(BOOL)isSameDayAsDate:(NSDate *)otherDate usingCalendar:(NSCalendar *)calendar;
+    //calendar should already have time zone set!!
 -(BOOL)isSameUTDayAsDate:(NSDate *)otherDate;
 
 - (BOOL) isToday;
