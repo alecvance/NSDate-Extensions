@@ -544,6 +544,7 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
 }
 
 //Even if you're still using Gregorian calendar, you might want to change the time zone!
+#pragma warning unreliable (?)
 - (NSDate *) dateAtStartOfDayUsingCalendar:(NSCalendar *)calendar
 {
     NSDateComponents *components = [calendar components:componentFlags fromDate:self];
@@ -553,6 +554,7 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
     return [calendar dateFromComponents:components];
 }
 
+#pragma warning unreliable (?)
 - (NSDate *) dateAtEndOfDayUsingCalendar:(NSCalendar *)calendar
 {
     NSDateComponents *components = [calendar components:componentFlags fromDate:self];
@@ -663,6 +665,8 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
 }
 
 -(double)hoursSinceStartOfDayUsingCalendar:(NSCalendar *)calendar{
+#pragma warning not working on days following a DST change
+    
     return [self secondsSinceStartOfDayUsingCalendar:calendar] / (3600.0);
 }
 
