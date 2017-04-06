@@ -544,7 +544,7 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
 }
 
 //Even if you're still using Gregorian calendar, you might want to change the time zone!
-#pragma warning unreliable (?)
+#warning unreliable (?)
 - (NSDate *) dateAtStartOfDayUsingCalendar:(NSCalendar *)calendar
 {
     NSDateComponents *components = [calendar components:componentFlags fromDate:self];
@@ -554,7 +554,7 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
     return [calendar dateFromComponents:components];
 }
 
-#pragma warning unreliable (?)
+#warning unreliable (?)
 - (NSDate *) dateAtEndOfDayUsingCalendar:(NSCalendar *)calendar
 {
     NSDateComponents *components = [calendar components:componentFlags fromDate:self];
@@ -655,18 +655,16 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
     return components.day;
 }
 
-
+#warning this is unreliable for dates containing DST transitions.
 -(double)secondsSinceStartOfDayUsingCalendar:(NSCalendar *)calendar{
-#pragma warning wasn't working before!
-    // do we want to use dateAtStartOfDay?? this is unreliable for dates containing DST transitions.
 
     NSTimeInterval interval = [self timeIntervalSinceDate: [self dateAtStartOfDayUsingCalendar:calendar]];
     return interval;
 }
 
+#warning this is unreliable for dates containing DST transitions.
+
 -(double)hoursSinceStartOfDayUsingCalendar:(NSCalendar *)calendar{
-#pragma warning not working on days following a DST change
-    
     return [self secondsSinceStartOfDayUsingCalendar:calendar] / (3600.0);
 }
 
