@@ -26,13 +26,16 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
 + (NSTimeZone *)genericTimeZoneForLongitude:(double)lon{
     
     // alternatively, makes a time zone for each minute!
-    // return [NSTimeZone timeZoneForSecondsFromGMT:lon * 240.0];
+    return [NSTimeZone timeZoneForSecondsFromGMT:lon * 240.0];
     
+    /*
     // round to nearest hour offset from GMT
     int hour = (int)((24.0/360.0)*lon);
     
     return [NSTimeZone timeZoneForSecondsFromGMT:hour * HOUR];
-}
+    */
+    
+     }
 
 
 #pragma mark - Relative Dates
