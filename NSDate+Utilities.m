@@ -438,7 +438,7 @@ static const unsigned componentFlags = (NSCalendarUnitYear| NSCalendarUnitMonth 
     return [self dateByAddingMonths:-dMonths];
 }
 
-// Courtesy of dedan who mentions issues with Daylight Savings
+// Courtesy of dedan who mentions issues with Daylight Saving Time
 - (NSDate *) dateByAddingDays: (NSInteger) dDays
 {
     NSDateComponents *dateComponents = [[NSDateComponents alloc] init];
