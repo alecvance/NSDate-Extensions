@@ -3,7 +3,7 @@
  iPhone Developer's Cookbook 3.x and beyond
  BSD License, Use at your own risk
 
- this fork by Alec Vance http://www.juggleware.com
+ this fork by Alec Vance https://www.juggleware.com
  */
 
 #import "NSDate+Utilities.h"
